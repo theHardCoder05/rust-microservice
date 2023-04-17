@@ -8,8 +8,8 @@ use std::collections::HashMap;
 /** Public interface */
 pub trait Users{
     fn create_user(&mut self, username: String, password: String) -> Result<(), String> ;
-    fn get_user_uuid(&mut, username: String, password: String) -> Option<String>;
-    fn delete_user(&mut, uuid_id: String);
+    fn get_user_uuid(&self, username: String, password: String) -> Option<String>;
+
 
 }
 
@@ -33,7 +33,7 @@ impl Users for UserImpl {
     /**
      * Create user function takes in UUID and Username as String
      */
-    fn create_user(&mut self, uuid: String, username: String)-> Result<(), String>{
+    fn create_user(&mut self,username: String, password: String)-> Result<(), String>{
         if self.uuid_to_user.contains_key(&username) {
             return Err("Unable to create user. Username already exists".to_owned());
         }
@@ -42,18 +42,18 @@ impl Users for UserImpl {
         let salt = SaltString::generate(&mut OsRng);
 
         let hashed_password = Pbkdf2
-                                .hashed_password(password.as_bytes(), &salt)
+                                .hash_password(password.as_bytes(), &salt)
                                 .map_err(|e| format!("Failed to hash password.\n{e:?}"))?
                                 .to_string();
 
         let user = User {
-            uuid_to_user: Uuid::new_v4().to_string(),
+            user_uuid: Uuid::new_v4().to_string(),
             username: username.clone(),
             password: hashed_password,
 
-        }
+        };
 
-        self.username_to_user.insert(username, user);
+        self.username_to_user.insert(username, user.clone());
         self.uuid_to_user.insert(user.user_uuid.clone(), user);
 
         return Ok(());
@@ -62,14 +62,14 @@ impl Users for UserImpl {
     /**
      * Get User
      */
-    fn get_user_uuid(&mut, username: String, password: String) -> Option<String> {
+    fn get_user_uuid(&self, username: String, password: String) -> Option<String> {
         let user = self.username_to_user.get(&username)?;
 
-        let hashed_password = self.user.password.clone();
+        let hashed_password = user.password.clone();
         let parsed_hash = PasswordHash::new(&hashed_password).ok()?;
         let result = Pbkdf2.verify_password(password.as_bytes(), &parsed_hash);
 
-        if let user.username == username && result.is_ok() {
+        if  user.username == username && result.is_ok() {
             return Some(user.user_uuid.clone());
         
         }
@@ -83,8 +83,9 @@ impl Users for UserImpl {
 
 #[cfg(test)]
 mod tests {
-use super::*;
+    use super::*;
 
+    /// Create use positive test
     #[test]
     fn should_create_user() {
         let mut user_service = UsersImpl::default();
@@ -94,5 +95,6 @@ use super::*;
 
      assert_eq!(user_service.uuid_to_user.len(),1);
      assert_eq!(user_service.username_to_user.len(),1);
+ 
     }
 }

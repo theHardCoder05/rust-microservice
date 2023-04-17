@@ -19,7 +19,7 @@ edition = "2021"
 
 [[bin]]
 name = "main"
-path = "src/main.rs"
+path = "src/auth-service/main.rs"
 
 [dependencies]
 tonic = "0.9" # used by all
