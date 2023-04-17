@@ -57,6 +57,42 @@ impl Users for UserImpl {
         self.uuid_to_user.insert(user.user_uuid.clone(), user);
 
         return Ok(());
+    }
 
+    /**
+     * Get User
+     */
+    fn get_user_uuid(&mut, username: String, password: String) -> Option<String> {
+        let user = self.username_to_user.get(&username)?;
+
+        let hashed_password = self.user.password.clone();
+        let parsed_hash = PasswordHash::new(&hashed_password).ok()?;
+        let result = Pbkdf2.verify_password(password.as_bytes(), &parsed_hash);
+
+        if let user.username == username && result.is_ok() {
+            return Some(user.user_uuid.clone());
+        
+        }
+
+        None
+    
+    }
+
+
+}
+
+#[cfg(test)]
+mod tests {
+use super::*;
+
+    #[test]
+    fn should_create_user() {
+        let mut user_service = UsersImpl::default();
+        user_service
+        .create_user("username".to_owned(), "password".to_owned())
+        .expect("should create user");
+
+     assert_eq!(user_service.uuid_to_user.len(),1);
+     assert_eq!(user_service.username_to_user.len(),1);
     }
 }
