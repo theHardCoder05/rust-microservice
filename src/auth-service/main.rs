@@ -1,8 +1,15 @@
-
+use std::sync::Mutex;
 mod users;
-use users::UserImpl;
 
-fn main(){
+use users::UsersImpl;
 
-let users_service = Box::new(UserImpl::default());
+
+#[tokio::main]
+async fn main()-> Result<(), Box<dyn std::error::Error>> {
+
+let users_service = Box::new(Mutex::new(UsersImpl::default()));
+
+Ok(())
+
+
 }

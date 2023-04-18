@@ -22,13 +22,13 @@ pub struct User{
 
 
 #[derive(Default)]
-pub struct UserImpl {
+pub struct UsersImpl {
     uuid_to_user: HashMap<String, User>,
     username_to_user: HashMap<String, User>,
 }
 
 /** User struct to implement Users interface */
-impl Users for UserImpl {
+impl Users for UsersImpl {
 
     /**
      * Create user function takes in UUID and Username as String
@@ -83,18 +83,17 @@ impl Users for UserImpl {
 
 #[cfg(test)]
 mod tests {
+
     use super::*;
 
-    /// Create use positive test
     #[test]
     fn should_create_user() {
         let mut user_service = UsersImpl::default();
         user_service
-        .create_user("username".to_owned(), "password".to_owned())
-        .expect("should create user");
+            .create_user("username".to_owned(), "password".to_owned())
+            .expect("should create user");
 
-     assert_eq!(user_service.uuid_to_user.len(),1);
-     assert_eq!(user_service.username_to_user.len(),1);
- 
+        assert_eq!(user_service.uuid_to_user.len(), 1);
+        assert_eq!(user_service.username_to_user.len(), 1);
     }
 }
