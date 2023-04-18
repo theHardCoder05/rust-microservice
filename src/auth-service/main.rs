@@ -1,5 +1,6 @@
 use std::sync::Mutex;
 mod users;
+mod sessions;
 
 use users::UsersImpl;
 
